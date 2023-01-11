@@ -1,6 +1,6 @@
 # LINE Rich Menu Manager
 
-リッチメニューを楽にデプロイできるようにするスクリプト群
+[LINEリッチメニュー](https://developers.line.biz/ja/docs/messaging-api/using-rich-menus/) を楽にデプロイできるようにするスクリプト群
 
 ## Requirements
 - bash
