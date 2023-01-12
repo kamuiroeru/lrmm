@@ -1,11 +1,9 @@
 #!/bin/bash
 
-cd $(dirname $0)
-
 BASE_URL="https://api.line.me/v2/bot"
 DATA_BASE_URL="https://api-data.line.me/v2/bot/richmenu"
 
-source ./utils.sh
+source $(dirname $0)/utils.sh
 
 get_auth
 
@@ -14,10 +12,11 @@ echo_pass $CHANNEL_ACCESS_TOKEN
 
 
 function validate () {
-  curl -v -X POST $BASE_URL/richmenu/validate \
+  curl -X POST $BASE_URL/richmenu/validate \
     -H "Authorization: Bearer $CHANNEL_ACCESS_TOKEN" \
     -H 'Content-Type: application/json' \
-    -d "$1"
+    -d "$1" \
+    -o /dev/null -w '%{http_code}\n' -s
 }
 
 function create_rm () {
@@ -60,13 +59,21 @@ function set_default_rm () {
 }
 
 function main () {
+  find $1
+  check_exit0
+
   DIR=$1
   YML=$(find $DIR -type f -name "*.yml" | head -1)
   PNG=$(find $DIR -type f -name "*.png" | head -1)
   ALIAS=$(find $DIR -type f -name "alias_id.txt" | head -1)
   DEFAULT=$(find $DIR -type f -name "default.txt" | head -1)
 
-  validate "$(yq -o json $YML)"
+  HTTP_STATUS=$(validate "$(yq -o json $YML)")
+  if [ $HTTP_STATUS -ne 200 ]; then
+    echo "[ERROR] Invalid YML. please check $YML"
+    exit 1
+  fi
+
   RICH_MENU_ID=$(create_rm "$(yq -o json $YML)" | jq -r ".richMenuId")
   upload_png $RICH_MENU_ID $PNG
   create_alias $RICH_MENU_ID $ALIAS
