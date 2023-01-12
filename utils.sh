@@ -21,6 +21,13 @@ function get_auth () {
   read -sp "Channel Access Token: " CHANNEL_ACCESS_TOKEN
 }
 
+function check_exit0 () {
+  if [ $? -ne 0 ]; then
+    echo 'ERROR'
+    exit 1
+  fi
+}
+
 # 以下デバッグ用
 # get_auth
 # echo_pass $CHANNEL_ACCESS_TOKEN
